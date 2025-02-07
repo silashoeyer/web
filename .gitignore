@@ -36,3 +36,6 @@ package-lock.json
 # Sentry Config File
 .sentryclirc
 .idea
+
+# VS Code Settings
+.vscode
