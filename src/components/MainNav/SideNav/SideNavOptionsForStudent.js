@@ -22,6 +22,12 @@ export default function SideNavOptionsForStudent({ screenWidth }) {
       />
 
       <NavOption
+        {...NavigationOptions.videos}
+        currentPath={path}
+        screenWidth={screenWidth}
+      />
+
+      <NavOption
         {...NavigationOptions.exercises}
         currentPath={path}
         screenWidth={screenWidth}

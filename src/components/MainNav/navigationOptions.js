@@ -10,6 +10,13 @@ export default class NavigationOptions {
     isOnStudentSide: true,
   });
 
+  static videos = Object.freeze({
+    linkTo: "/videos",
+    icon: <NavIcon name="videos" />,
+    text: strings.videos,
+    isOnStudentSide: true,
+  });
+
   static exercises = Object.freeze({
     linkTo: "/exercises",
     icon: <NavIcon name="exercises" />,

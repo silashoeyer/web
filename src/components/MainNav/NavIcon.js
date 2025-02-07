@@ -1,3 +1,4 @@
+import OndemandVideoIcon from '@mui/icons-material/OndemandVideo';
 import SettingsRoundedIcon from "@mui/icons-material/SettingsRounded";
 import HomeRoundedIcon from "@mui/icons-material/HomeRounded";
 import FitnessCenterRoundedIcon from "@mui/icons-material/FitnessCenterRounded";
@@ -15,6 +16,7 @@ import DoubleArrowLeft from "@mui/icons-material/KeyboardDoubleArrowLeftOutlined
 export default function NavIcon({ name }) {
   const navIcons = {
     home: <HomeRoundedIcon />,
+    videos: <OndemandVideoIcon />,
     exercises: <FitnessCenterRoundedIcon />,
     words: <TranslateRoundedIcon />,
     history: <HistoryRoundedIcon />,
