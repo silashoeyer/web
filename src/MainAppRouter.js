@@ -22,6 +22,7 @@ import DeleteAccount from "./pages/DeleteAccount/DeleteAccount";
 import SettingsRouter from "./pages/Settings/_SettingsRouter";
 import ExercisesForArticle from "./exercises/ExercisesForArticle";
 import { UMR_SOURCE } from "./reader/ArticleReader";
+import VideoPage from "./videos/VideoPage";
 
 export default function MainAppRouter({
   api,
@@ -93,6 +94,13 @@ export default function MainAppRouter({
         api={api}
         component={ArticlesRouter}
       />
+
+      <PrivateRouteWithMainNav
+        path="/videos"
+        api={api}
+        component={VideoPage}
+      />
+
       <PrivateRouteWithMainNav
         path="/exercises"
         api={api}
