@@ -86,6 +86,27 @@ const VideoPage = () => {
     setPlayer(event.target);
   };
 
+  // Add event listener for spacebar (to play/pause the video)
+  useEffect(() => {
+    const handleSpacePressed = (event) => {
+      if (event.code === "Space" && player && document.activeElement.tagName !== "IFRAME") {
+        // Check if the spacebar is pressed, player is initialized, and the active element is not an iframe
+        event.preventDefault(); // Prevent the default action
+        const playerState = player.getPlayerState(); // Get the current state of the player
+        if (playerState === 1) { // If the player is playing
+          player.pauseVideo(); // Pause the video
+        } else { // If the player is not playing
+          player.playVideo(); // Play the video
+        }
+      }
+    };
+  
+    window.addEventListener("keydown", handleSpacePressed); // Add event listener for keydown
+    return () => {
+      window.removeEventListener("keydown", handleSpacePressed); // Remove event listener when the component unmounts
+    };
+  }, [player]); // Dependency: player
+
   return (
     <div>
         <h1>Video with Captions</h1>
