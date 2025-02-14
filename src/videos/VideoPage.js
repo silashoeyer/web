@@ -88,17 +88,22 @@ const VideoPage = () => {
 
   return (
     <div>
-      <h1>Video with Captions</h1>
-      <YouTube
-        videoId="EWnStY9O4CA"
-        opts={opts}
-        onReady={onReady}
-      />
+        <h1>Video with Captions</h1>
+        <YouTube
+            videoId="EWnStY9O4CA"
+            opts={opts}
+            onReady={onReady}
+        />
 
-      <h2>Transcript</h2>
-      <div style={{ whiteSpace: "pre-wrap" }}>
-        <p>{currentCaption}</p>
-      </div>
+        <h2>Transcript</h2>
+        <div style={{ whiteSpace: "pre-wrap" }}>
+            {!currentCaption && (
+                <p style={{ fontStyle: "italic", color: "gray" }}>
+                Start the video to see subtitles.
+                </p>
+            )}
+            <p>{currentCaption}</p>
+        </div>
     </div>
   );
 };
