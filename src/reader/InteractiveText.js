@@ -29,8 +29,8 @@ export default class InteractiveText {
         target_s_i = bookmark["context_sent"] + bookmark["t_sentence_i"];
         target_t_i = bookmark["context_token"] + bookmark["t_token_i"];
 
+        if (target_p_i === undefined || target_p_i === null) return;
         target_token = paragraphs[target_p_i][target_s_i][target_t_i];
-        if (target_token === undefined) return;
         target_token.bookmark = bookmark;
         /*
           When rendering the words in the frontend, we alter the word object to be composed
@@ -187,7 +187,7 @@ export default class InteractiveText {
 
     this.api.logReaderActivity(
       this.api.SPEAK_TEXT,
-      this.articleInfo.id,
+      this.article_id,
       word.word,
       this.source,
     );
@@ -200,7 +200,10 @@ export default class InteractiveText {
       let count = 0;
       while (count < maxLeftContextLength && currentWord.prev) {
         currentWord = currentWord.prev;
-        contextBuilder = currentWord.word + " " + contextBuilder;
+        contextBuilder =
+          currentWord.word +
+          (currentWord.token.has_space ? " " : "") +
+          contextBuilder;
         if (
           currentWord.token.is_sent_start ||
           currentWord.token.token_i === 0
@@ -229,7 +232,11 @@ export default class InteractiveText {
         ) {
           break;
         }
-        contextBuilder = contextBuilder + " " + currentWord.word;
+
+        contextBuilder =
+          contextBuilder +
+          (currentWord.prev.token.has_space ? " " : "") +
+          currentWord.word;
         if (!wordShouldSkipCount(currentWord))
           // If it's not a punctuation or symbol we count it.
           count++;
