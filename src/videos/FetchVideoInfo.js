@@ -1,6 +1,6 @@
 export const fetchVideoInfo = async (videoId) => {
-    const API_KEY = "AIzaSyB9TkEpEgW-J_jeB9SWtc2nEaS_-eE0LhE";
-    const url = `https://www.googleapis.com/youtube/v3/videos?part=snippet,contentDetails&id=${videoId}&key=${API_KEY}`;
+    const GOOGLE_API_KEY = process.env.REACT_APP_GOOGLE_API_KEY;
+    const url = `https://www.googleapis.com/youtube/v3/videos?part=snippet,contentDetails&id=${videoId}&key=${GOOGLE_API_KEY}`;
 
     try {
         const response = await fetch(url);
