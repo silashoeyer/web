@@ -1,11 +1,17 @@
 import React, { useState, useEffect, useCallback } from "react";
 import YouTube from "react-youtube";
+import { Container, Captions, VideoWrapper, CaptionsWrapper, IconWrapper, IconItem, Icon, Hr, Title, Author } from "./VideoPage.sc";
+import { fetchVideoInfo } from "./FetchVideoInfo";
 
 const VideoPage = () => {
   const [captions, setCaptions] = useState([]);
   const [currentCaption, setCurrentCaption] = useState("");
   const [player, setPlayer] = useState(null);
+  const [videoTitle, setVideoTitle] = useState("");
+  const [channelName, setChannelName] = useState("");
+  const [videoDuration, setVideoDuration] = useState("");
   const subtitleFile = "/captions/captions.vtt";
+  const videoId = "EWnStY9O4CA";
 
   const parseVTT = useCallback((vttText) => {
     const captions = [];
@@ -72,13 +78,21 @@ const VideoPage = () => {
     return () => clearInterval(interval);
   }, [captions, player]);
 
+  useEffect(() => {
+    const getVideoDetails = async () => {
+      const { videoTitle, channelName, videoDuration } = await fetchVideoInfo(videoId);
+      setVideoTitle(videoTitle);
+      setChannelName(channelName);
+      setVideoDuration(videoDuration);
+    };
+
+    getVideoDetails();
+  }, [videoId]);
+
   const opts = {
-    height: "315",
-    width: "560",
     playerVars: {
-      autoplay: 0,
-      cc_load_policy: 0,
-      cc_lang_pref: "en",
+      rel: 0,
+      color: "white",
     },
   };
 
@@ -87,19 +101,25 @@ const VideoPage = () => {
   };
 
   return (
-    <div>
-      <h1>Video with Captions</h1>
-      <YouTube
-        videoId="EWnStY9O4CA"
-        opts={opts}
-        onReady={onReady}
-      />
-
-      <h2>Transcript</h2>
-      <div style={{ whiteSpace: "pre-wrap" }}>
-        <p>{currentCaption}</p>
-      </div>
-    </div>
+    <Container>
+      <Title>{videoTitle}</Title>
+      <Author>{channelName}</Author>
+      <IconWrapper>
+        <IconItem>
+          <Icon src="/static/icons/B1-level-icon.png" alt="diffculty icon" /> <span>B1</span>
+        </IconItem>
+        <IconItem>
+          <Icon src="/static/icons/read-time-icon.png" alt="read time icon" /> <span>{videoDuration}</span>
+        </IconItem>
+      </IconWrapper>
+      <Hr />
+      <VideoWrapper>
+        <YouTube videoId={videoId} opts={opts} onReady={onReady} />
+      </VideoWrapper>
+      <CaptionsWrapper>
+        <Captions>{currentCaption}</Captions>
+      </CaptionsWrapper>
+    </Container>
   );
 };
 
