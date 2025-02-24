@@ -79,6 +79,8 @@ export default function MainAppRouter({
 
       <PrivateRouteWithMainNav path="/articles" component={ArticlesRouter} />
 
+      <PrivateRouteWithMainNav path="/videos" component={VideoPage} />
+
       <PrivateRouteWithMainNav path="/exercises" component={ExercisesRouter} />
 
       <PrivateRouteWithMainNav path="/words" component={WordsRouter} />
