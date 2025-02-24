@@ -65,14 +65,17 @@ export default function SpellWhatYouHear({
       ),
     );
     if (!SessionStorage.isAudioExercisesEnabled()) handleDisabledAudio();
-  }, [isBookmarkChanged]);
+    // eslint-disable-next-line
+  }, [isBookmarkChanged, exerciseBookmark]);
 
   useEffect(() => {
     // Timeout is set so that the page renders before the word is spoken, allowing for the user to gain focus on the page
-    // Changed timeout to be slightly shorter.
-    setTimeout(() => {
-      handleSpeak();
-    }, 300);
+    // Changed timeout to be slightly shorter. The sound should only play if the text
+    // is visible for the user.
+    if (interactiveText && !isButtonSpeaking)
+      setTimeout(() => {
+        handleSpeak();
+      }, 200);
   }, [interactiveText]);
 
   function handleShowSolution(e, message) {
@@ -135,7 +138,6 @@ export default function SpellWhatYouHear({
           <s.CenteredRowTall>
             <SpeakButton
               bookmarkToStudy={exerciseBookmark}
-              api={api}
               styling="large"
               parentIsSpeakingControl={isButtonSpeaking}
             />
@@ -182,7 +184,6 @@ export default function SpellWhatYouHear({
       )}
       <NextNavigation
         exerciseType={EXERCISE_TYPE}
-        api={api}
         message={messageToAPI}
         exerciseBookmark={exerciseBookmark}
         moveToNextExercise={moveToNextExercise}
