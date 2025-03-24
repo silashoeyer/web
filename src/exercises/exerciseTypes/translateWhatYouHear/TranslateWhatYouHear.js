@@ -13,13 +13,13 @@ import { SpeechContext } from "../../../contexts/SpeechContext.js";
 import DisableAudioSession from "../DisableAudioSession.js";
 import useSubSessionTimer from "../../../hooks/useSubSessionTimer.js";
 import BookmarkProgressBar from "../../progressBars/BookmarkProgressBar.js";
+import { APIContext } from "../../../contexts/APIContext.js";
 
 // The user has to translate the word they hear into their L1.
 // This tests the user's passive knowledge.
 
 const EXERCISE_TYPE = EXERCISE_TYPES.translateWhatYouHear;
 export default function TranslateWhatYouHear({
-  api,
   bookmarksToStudy,
   notifyCorrectAnswer,
   notifyIncorrectAnswer,
@@ -33,6 +33,7 @@ export default function TranslateWhatYouHear({
   exerciseSessionId,
   activeSessionDuration,
 }) {
+  const api = useContext(APIContext);
   const [messageToAPI, setMessageToAPI] = useState("");
   const exerciseBookmark = bookmarksToStudy[0];
   const speech = useContext(SpeechContext);
@@ -63,12 +64,14 @@ export default function TranslateWhatYouHear({
       ),
     );
     if (!SessionStorage.isAudioExercisesEnabled()) handleDisabledAudio();
-  }, [isBookmarkChanged]);
+    // eslint-disable-next-line
+  }, [isBookmarkChanged, exerciseBookmark]);
 
   useEffect(() => {
-    if (SessionStorage.isAudioExercisesEnabled()) {
-      handleSpeak();
-    }
+    if (interactiveText && !isButtonSpeaking)
+      setTimeout(() => {
+        handleSpeak();
+      }, 200);
   }, [interactiveText]);
 
   function handleShowSolution(e, message) {
@@ -129,8 +132,7 @@ export default function TranslateWhatYouHear({
         <>
           <s.CenteredRowTall>
             <SpeakButton
-              exerciseBookmark={exerciseBookmark}
-              api={api}
+              bookmarkToStudy={exerciseBookmark}
               styling="large"
               parentIsSpeakingControl={isButtonSpeaking}
             />
@@ -141,7 +143,7 @@ export default function TranslateWhatYouHear({
               interactiveText={interactiveText}
               translating={true}
               pronouncing={false}
-              exerciseBookmark={exerciseBookmark.from}
+              bookmarkToStudy={exerciseBookmark.from}
               exerciseType={EXERCISE_TYPE}
               leftEllipsis={exerciseBookmark.left_ellipsis}
               rightEllipsis={exerciseBookmark.right_ellipsis}
@@ -169,7 +171,7 @@ export default function TranslateWhatYouHear({
               interactiveText={interactiveText}
               translating={true}
               pronouncing={false}
-              exerciseBookmark={exerciseBookmark.from}
+              bookmarkToStudy={exerciseBookmark.from}
               leftEllipsis={exerciseBookmark.left_ellipsis}
               rightEllipsis={exerciseBookmark.right_ellipsis}
             />
@@ -178,7 +180,6 @@ export default function TranslateWhatYouHear({
       )}
       <NextNavigation
         exerciseType={EXERCISE_TYPE}
-        api={api}
         message={messageToAPI}
         exerciseBookmark={exerciseBookmark}
         moveToNextExercise={moveToNextExercise}

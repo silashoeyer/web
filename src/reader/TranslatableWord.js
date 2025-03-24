@@ -32,10 +32,14 @@ export default function TranslatableWord({
       return;
     }
     if (word.translation) setIsTranslationVisible(false);
-  }, []);
+  }, [word]);
 
   function clickOnWord(e, word) {
-    if (word.is_like_num || word.is_punct) return;
+    if (
+      word.token.is_like_num ||
+      (word.token.is_punct && word.word.length === 1)
+    )
+      return;
     if (word.translation) {
       if (pronouncing) interactiveText.pronounce(word);
       if (
@@ -180,7 +184,7 @@ export default function TranslatableWord({
 
   const wordClass = getWordClass(word);
 
-  if (word.is_like_email)
+  if (word.token.is_like_email)
     return (
       <>
         <z-tag>
@@ -188,7 +192,7 @@ export default function TranslatableWord({
         </z-tag>
       </>
     );
-  if (word.is_like_url)
+  if (word.token.is_like_url)
     return (
       <>
         <z-tag onClick={() => redirect(addProtocolToLink(word.word), true)}>

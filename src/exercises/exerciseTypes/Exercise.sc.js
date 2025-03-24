@@ -1,11 +1,9 @@
-import styled, { css, keyframes } from "styled-components";
+import styled, { keyframes } from "styled-components";
 
 import {
   zeeguuTransparentLightOrange,
   zeeguuOrange,
-  lightBlue,
-  gray,
-  buttonBorder,
+  lightGrey,
 } from "../../components/colors";
 
 const Exercise = styled.div`
@@ -356,6 +354,12 @@ let Input = styled.input`
     outline: none !important;
     height: 1.7em;
     width: 80%;
+  }
+
+  &::placeholder {
+    font-size: medium;
+    font-weight: 500;
+    color: ${lightGrey};
   }
 
   @media (max-width: 430px) {

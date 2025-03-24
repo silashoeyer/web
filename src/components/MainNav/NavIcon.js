@@ -12,6 +12,7 @@ import HistoryRoundedIcon from "@mui/icons-material/HistoryRounded";
 import DonutSmallRoundedIcon from "@mui/icons-material/DonutSmallRounded";
 import DoubleArrowRight from "@mui/icons-material/KeyboardDoubleArrowRightOutlined";
 import DoubleArrowLeft from "@mui/icons-material/KeyboardDoubleArrowLeftOutlined";
+import LanguageRoundedIcon from "@mui/icons-material/LanguageRounded";
 
 export default function NavIcon({ name }) {
   const navIcons = {
@@ -29,6 +30,7 @@ export default function NavIcon({ name }) {
     myTexts: <ChromeReaderModeRoundedIcon />,
     studentSite: <SchoolRoundedIcon />,
     more: <MoreHorizRoundedIcon />,
+    language: <LanguageRoundedIcon />,
   };
   return navIcons[name] || "";
 }
