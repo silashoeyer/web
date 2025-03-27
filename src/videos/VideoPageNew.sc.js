@@ -34,24 +34,68 @@ const PageContainer = styled.div`
   }
 
   @media (max-width: 768px) {
-    padding: 1.5rem;
-    width: 95%;
+    padding: 2rem 2rem;
   }
 
   @media (max-width: 576px) {
-    padding: 1.2rem;
-    width: 98%;
+    padding: 1.5rem;
+    width: 95%;
   }
+`;
+
+let Channel = styled.div`
+  margin-top: 0.5em;
+  margin-bottom: 2em;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+`;
+
+let StatContainer = styled.div`
+  display: flex;
+  align-items: center;
+  padding: 1rem 0;
+  @media (max-width: 990px) {
+    margin-left: 0;
+  }
+`;
+
+const IconContainer = styled.div`
+  display: flex;
+  align-items: flex-end;
+  flex-direction: row;
+  gap: 0.5em;
+  margin-right: 2em;
+  img {
+    height: 1.5em;
+  }
+  span {
+    font-weight: 450;
+  }
+`;
+
+let ImgContainer = styled.div`
+  display: flex;
+  justify-content: center;
+`;
+
+let Img = styled.img`
+  width: 100%;
+  border-radius: 1em;
+  margin-bottom: 1em;
+`;
+
+let Caption = styled.div`
+  margin-top: 1em;
+  margin-bottom: 1em;
+  white-space: pre-wrap;
 `;
 
 const VideoContainer = styled.div`
   position: relative;
-  width: 90%;
-  max-width: 800px;
-  padding-top: 56.25%; /* 16:9 Aspect Ratio */
+  width: 95%;
+  padding-top: 56.25%; /* 16:9 Aspect Ratio in relation to the width of the container */
   margin: 0 auto;
-  border-radius: 12px;
-  overflow: hidden;
 
   iframe {
     position: absolute;
@@ -61,39 +105,16 @@ const VideoContainer = styled.div`
     height: 100%;
     border-radius: 12px;
   }
-
-  @media (max-width: 768px) {
-    width: 100%;
-  }
 `;
 
-const Caption = styled.div`
-  margin-top: 1em;
-  margin-bottom: 1em;
-  white-space: pre-wrap;
-  font-size: 18px;
-  text-align: center;
-  color: #444;
-
-  @media (max-width: 768px) {
-    font-size: 16px;
-    margin: 0.8em;
-  }
-
-  @media (max-width: 576px) {
-    font-size: 14px;
-  }
-`;
-
-const VideoInfo = styled.div`
-  margin-top: 1rem;
-  font-size: 16px;
-  text-align: center;
-  color: #777;
-
-  @media (max-width: 576px) {
-    font-size: 14px;
-  }
-`;
-
-export { PageBackground, PageContainer, VideoContainer, Caption, VideoInfo };
+export {
+  PageBackground,
+  PageContainer,
+  Channel,
+  StatContainer,
+  IconContainer,
+  ImgContainer,
+  Img,
+  Caption,
+  VideoContainer,
+};
