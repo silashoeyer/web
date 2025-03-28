@@ -34,12 +34,65 @@ const PageContainer = styled.div`
   }
 
   @media (max-width: 768px) {
-    padding: 2rem 2rem;
+    padding: 1.5rem;
+    width: 95%;
   }
 
   @media (max-width: 576px) {
-    padding: 1.5rem;
-    width: 95%;
+    padding: 1.2rem;
+    width: 98%;
+  }
+`;
+
+const VideoContainer = styled.div`
+  position: relative;
+  width: 90%;
+  max-width: 800px;
+  padding-top: 56.25%; /* 16:9 Aspect Ratio */
+  margin: 0 auto;
+  border-radius: 12px;
+  overflow: hidden;
+
+  iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 12px;
+  }
+
+  @media (max-width: 768px) {
+    width: 100%;
+  }
+`;
+
+const Caption = styled.div`
+  margin-top: 1em;
+  margin-bottom: 1em;
+  white-space: pre-wrap;
+  font-size: 18px;
+  text-align: center;
+  color: #444;
+
+  @media (max-width: 768px) {
+    font-size: 16px;
+    margin: 0.8em;
+  }
+
+  @media (max-width: 576px) {
+    font-size: 14px;
+  }
+`;
+
+const VideoInfo = styled.div`
+  margin-top: 1rem;
+  font-size: 16px;
+  text-align: center;
+  color: #777;
+
+  @media (max-width: 576px) {
+    font-size: 14px;
   }
 `;
 
@@ -85,28 +138,6 @@ let Img = styled.img`
   margin-bottom: 1em;
 `;
 
-let Caption = styled.div`
-  margin-top: 1em;
-  margin-bottom: 1em;
-  white-space: pre-wrap;
-`;
-
-const VideoContainer = styled.div`
-  position: relative;
-  width: 95%;
-  padding-top: 56.25%; /* 16:9 Aspect Ratio in relation to the width of the container */
-  margin: 0 auto;
-
-  iframe {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    border-radius: 12px;
-  }
-`;
-
 export {
   PageBackground,
   PageContainer,
@@ -117,4 +148,5 @@ export {
   Img,
   Caption,
   VideoContainer,
+  VideoInfo,
 };

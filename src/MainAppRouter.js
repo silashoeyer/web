@@ -23,7 +23,8 @@ import DeleteAccount from "./pages/DeleteAccount/DeleteAccount";
 import SettingsRouter from "./pages/Settings/_SettingsRouter";
 import ExercisesForArticle from "./exercises/ExercisesForArticle";
 import { UMR_SOURCE } from "./reader/ArticleReader";
-import VideoPage from "./videos/VideoPage";
+import VideoPageNew from "./videos/VideoPageNew";
+import VideoPageNew2 from "./videos/VideoPageNew2";
 
 export default function MainAppRouter({ hasExtension, handleSuccessfulLogIn }) {
   return (
@@ -71,6 +72,7 @@ export default function MainAppRouter({ hasExtension, handleSuccessfulLogIn }) {
       />
 
       <PrivateRouteWithMainNav path="/articles" component={ArticlesRouter} />
+      <PrivateRoute path="/videos/:videoId" component={VideoPageNew2} />
       <PrivateRouteWithMainNav path="/exercises" component={ExercisesRouter} />
       <PrivateRouteWithMainNav path="/words" component={WordsRouter} />
       <PrivateRouteWithMainNav path="/history" component={ReadingHistory} />

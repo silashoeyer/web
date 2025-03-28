@@ -6,16 +6,25 @@ import { useParams } from "react-router-dom";
 
 export default function VideoPageNew() {
   const { videoId } = useParams();
-  console.log("Video ID from URL:", videoId);
   const [player, setPlayer] = useState(null);
   const [currentCaption, setCurrentCaption] = useState("");
   const [captions, setCaptions] = useState([]);
   const subtitleFile = "/captions/captions.vtt";
-  const cefr_level = "C1";
-  const title = "5 SMÅ Naturperler du aldrig har hørt om // Dansk natur";
-  document.title = title;
+
+  // Video Data (Could be dynamically fetched later)
+  const videoData = {
+    cefr_level: "C1",
+    title: "5 SMÅ Naturperler du aldrig har hørt om // Dansk natur",
+    uploader: "Naturen I Danmark",
+    duration: "~ 10 minutes",
+  };
+
+  document.title = videoData.title;
 
   const parseVTT = useCallback((vttText) => {
+    const parseTime = (h, m, s, ms) =>
+      parseInt(h) * 3600 + parseInt(m) * 60 + parseInt(s) + parseInt(ms) / 1000;
+
     const captions = [];
     const lines = vttText.split("\n");
     let currentCaption = null;
@@ -25,23 +34,10 @@ export default function VideoPageNew() {
         /(\d{2}):(\d{2}):(\d{2})\.(\d{3}) --> (\d{2}):(\d{2}):(\d{2})\.(\d{3})/,
       );
       if (timeMatch) {
-        if (currentCaption) {
-          captions.push(currentCaption);
-        }
-
+        if (currentCaption) captions.push(currentCaption);
         currentCaption = {
-          start: parseTime(
-            timeMatch[1],
-            timeMatch[2],
-            timeMatch[3],
-            timeMatch[4],
-          ),
-          end: parseTime(
-            timeMatch[5],
-            timeMatch[6],
-            timeMatch[7],
-            timeMatch[8],
-          ),
+          start: parseTime(...timeMatch.slice(1, 5)),
+          end: parseTime(...timeMatch.slice(5, 9)),
           text: "",
         };
       } else if (currentCaption && line.trim()) {
@@ -49,28 +45,18 @@ export default function VideoPageNew() {
       }
     });
 
-    if (currentCaption) {
-      captions.push(currentCaption);
-    }
-
+    if (currentCaption) captions.push(currentCaption);
     return captions;
   }, []);
-
-  const parseTime = (h, m, s, ms) => {
-    return (
-      parseInt(h) * 3600 + parseInt(m) * 60 + parseInt(s) + parseInt(ms) / 1000
-    );
-  };
 
   useEffect(() => {
     const fetchCaptions = async () => {
       try {
         const response = await fetch(subtitleFile);
         const vttText = await response.text();
-        const parsedCaptions = parseVTT(vttText);
-        setCaptions(parsedCaptions);
+        setCaptions(parseVTT(vttText));
       } catch (error) {
-        console.error("Error loading subtitles: ", error);
+        console.error("Error loading subtitles:", error);
       }
     };
 
@@ -87,11 +73,9 @@ export default function VideoPageNew() {
     },
   };
 
-  const onReady = (event) => {
-    setPlayer(event.target);
-  };
+  const onReady = (event) => setPlayer(event.target);
 
-  // Add event listener for spacebar (to play/pause the video)
+  // Spacebar Play/Pause Event
   useEffect(() => {
     const handleSpacePressed = (event) => {
       if (
@@ -101,21 +85,15 @@ export default function VideoPageNew() {
       ) {
         event.preventDefault();
         const playerState = player.getPlayerState();
-        if (playerState === 1) {
-          player.pauseVideo();
-        } else {
-          player.playVideo();
-        }
+        playerState === 1 ? player.pauseVideo() : player.playVideo();
       }
     };
 
     window.addEventListener("keydown", handleSpacePressed);
-    return () => {
-      window.removeEventListener("keydown", handleSpacePressed);
-    };
+    return () => window.removeEventListener("keydown", handleSpacePressed);
   }, [player]);
 
-  // Update caption based on video time
+  // Update Caption Based on Video Time
   useEffect(() => {
     const interval = setInterval(() => {
       if (player) {
@@ -124,52 +102,57 @@ export default function VideoPageNew() {
           (caption) =>
             currentTime >= caption.start && currentTime <= caption.end,
         );
-        setCurrentCaption(activeCaption ? activeCaption.text : "");
+        setCurrentCaption(activeCaption?.text || "");
       }
-    }, 100);
+    }, 250); // Adjusted interval for performance
 
     return () => clearInterval(interval);
   }, [captions, player]);
 
   return (
-    <>
+    <s.PageContainer>
       <s.VideoContainer>
         <YouTube videoId={videoId} opts={opts} onReady={onReady} />
       </s.VideoContainer>
 
-      <h1>{title}</h1>
+      <h1>{videoData.title}</h1>
+
       <s.StatContainer>
         <s.IconContainer>
           <img
             src={getStaticPath("icons", "youtube.png")}
-            alt="Uploaded by icon"
-          ></img>
-          <span>Naturen I Danmark</span>
+            alt="Uploader icon"
+          />
+          <span>{videoData.uploader}</span>
         </s.IconContainer>
         <s.IconContainer>
           <img
-            src={getStaticPath("icons", cefr_level + "-level-icon.png")}
-            alt="difficulty icon"
-          ></img>
-          <span>{cefr_level}</span>
+            src={getStaticPath(
+              "icons",
+              `${videoData.cefr_level}-level-icon.png`,
+            )}
+            alt="Difficulty icon"
+          />
+          <span>{videoData.cefr_level}</span>
         </s.IconContainer>
         <s.IconContainer>
           <img
             src={getStaticPath("icons", "duration.png")}
-            alt="duration icon"
-          ></img>
-          <span>~ 10 minutes</span>
+            alt="Duration icon"
+          />
+          <span>{videoData.duration}</span>
         </s.IconContainer>
       </s.StatContainer>
 
       <s.Caption>
-        {!currentCaption && (
+        {currentCaption ? (
+          <p>{currentCaption}</p>
+        ) : (
           <p style={{ fontStyle: "italic", color: "gray" }}>
             Start the video to see captions.
           </p>
         )}
-        <p>{currentCaption}</p>
       </s.Caption>
-    </>
+    </s.PageContainer>
   );
 }
