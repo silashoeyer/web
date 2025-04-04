@@ -24,7 +24,7 @@ import SettingsRouter from "./pages/Settings/_SettingsRouter";
 import ExercisesForArticle from "./exercises/ExercisesForArticle";
 import { UMR_SOURCE } from "./reader/ArticleReader";
 import VideoPlayer from "./videos/VideoPlayer";
-import VideoList from "./videos/VideoList"
+import VideoList from "./videos/VideoList";
 
 export default function MainAppRouter({ hasExtension, handleSuccessfulLogIn }) {
   return (

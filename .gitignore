@@ -38,4 +38,4 @@ package-lock.json
 .idea
 
 # VS Code Settings
-.vscode
+.vscode/
