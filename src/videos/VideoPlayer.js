@@ -1,12 +1,18 @@
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import React, { useState, useEffect, useCallback, useRef, useContext } from "react";
 import YouTube from "react-youtube";
 import styled from "styled-components";
 import { useParams, useHistory } from "react-router-dom";
+import { zeeguuOrange } from "../components/colors";
+import { TranslatableText } from "../reader/TranslatableText";
+import InteractiveText from "../reader/InteractiveText";
+import { APIContext } from "../contexts/APIContext";
+import { SpeechContext } from "../contexts/SpeechContext";
+import { setTitle } from "../assorted/setTitle";
 
 const FullscreenButton = styled.button`
   position: absolute;
-  right: 20px;
-  bottom: 20px;
+  left: 10px;
+  bottom: 75px;
   transform: none;
   background: rgba(0, 0, 0, 0.7);
   color: white;
@@ -32,8 +38,8 @@ const FullscreenButton = styled.button`
   }
 
   @media (max-width: 768px) {
-    right: 10px;
-    bottom: 10px;
+    right: 8px;
+    bottom: 40px;
     padding: 6px 12px;
     font-size: 14px;
 
@@ -71,9 +77,10 @@ const VideoContainer = styled.div`
     opacity: 1;
   }
 
+  /* For mobile devices and smaller screens */
   @media (max-width: 768px) {
     max-width: 95vw;
-    height: 60vh;
+    max-height: 380px;
   }
 `;
 
@@ -85,7 +92,7 @@ const CaptionContainer = styled.div`
   font-size: 18px;
   text-align: center;
   color: #444;
-  background: #f5f5f5;
+  background: white;
   border-radius: 8px;
   min-height: 20vh;
   max-height: 20vh;
@@ -107,7 +114,7 @@ const InfoContainer = styled.div`
   margin-top: 0.5em;
   margin-bottom: 2em;
   padding: 1em;
-  background: #f5f5f5;
+  background: white;
   border-radius: 8px;
   display: flex;
   justify-content: center;
@@ -145,6 +152,7 @@ const MainContainer = styled.div`
   display: flex;
   flex-direction: column;
   transition: all 0.3s ease;
+  background: ${zeeguuOrange};
 
   &.fullscreen {
     position: fixed;
@@ -185,7 +193,8 @@ const MainContainer = styled.div`
   }
 `;
 
-const VideoPageNew2 = () => {
+export default function VideoPlayer() {
+  const api = useContext(APIContext);
   const { videoId } = useParams();
   const history = useHistory();
   const [player, setPlayer] = useState(null);
@@ -193,8 +202,59 @@ const VideoPageNew2 = () => {
   const [captions, setCaptions] = useState([]);
   const [hasStartedPlaying, setHasStartedPlaying] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [translatedWords, setTranslatedWords] = useState(new Map());
+  const [interactiveCaptions, setInteractiveCaptions] = useState([]);
+  const [currentInteractiveText, setCurrentInteractiveText] = useState(null);
+  const speech = useContext(SpeechContext);
   const containerRef = useRef(null);
   const subtitleFile = "/captions/captions.vtt";
+
+  // Set page title to video title
+  useEffect(() => {
+    setTitle(videoData.title);
+  }, []);
+
+  // Create InteractiveText instance for captions
+  const createInteractiveText = useCallback((text) => {
+    console.log("Creating InteractiveText for text:", text);
+    
+    // Split text into words using regex for both spaces and newlines
+    const tokenizedParagraphs = [
+      [
+        text.split(/\s+/).map((word, index) => ({
+          text: word,
+          is_sent_start: index === 0, // First word of sentence
+          is_punct: false,
+          is_symbol: false,
+          is_left_punct: false,
+          is_right_punct: false,
+          is_like_num: false,
+          sent_i: 0,
+          token_i: index,
+          paragraph_i: 0,
+          is_like_email: false,
+          is_like_url: false,
+          has_space: index < text.split(/\s+/).length - 1, // All words except last have space
+          pos: null
+        }))
+      ]
+    ];
+    
+    const interactiveText = new InteractiveText(
+      tokenizedParagraphs,
+      null,  // articleID not needed for videos
+      false, // isArticleContent
+      api,   // Using the API from context
+      [],    // No bookmarks needed
+      api.TRANSLATE_TEXT,
+      "da",  // Danish language
+      "video",
+      speech
+    );
+    
+    console.log("Created InteractiveText instance:", interactiveText);
+    return interactiveText;
+  }, [api]);
 
   // Video Data (Could be dynamically fetched later)
   const videoData = {
@@ -235,16 +295,27 @@ const VideoPageNew2 = () => {
   useEffect(() => {
     const fetchCaptions = async () => {
       try {
+        console.log("Fetching captions from:", subtitleFile);
         const response = await fetch(subtitleFile);
         const vttText = await response.text();
-        setCaptions(parseVTT(vttText));
+        console.log("VTT text loaded:", vttText);
+        const parsedCaptions = parseVTT(vttText);
+        console.log("Parsed captions:", parsedCaptions);
+        setCaptions(parsedCaptions);
+        
+        // Create InteractiveText instances for each caption
+        const interactive = parsedCaptions.map(caption => 
+          createInteractiveText(caption.text)
+        );
+        console.log("Interactive captions created:", interactive);
+        setInteractiveCaptions(interactive);
       } catch (error) {
         console.error("Error loading subtitles:", error);
       }
     };
 
     fetchCaptions();
-  }, [subtitleFile, parseVTT]);
+  }, [subtitleFile, parseVTT, createInteractiveText]);
 
   const opts = {
     height: "100%",
@@ -252,8 +323,9 @@ const VideoPageNew2 = () => {
     playerVars: {
       autoplay: 0,
       cc_load_policy: 0,
-      cc_lang_pref: "en",
+      cc_lang_pref: "da",
       fs: 0,
+      controls: 1,
     },
   };
 
@@ -270,19 +342,30 @@ const VideoPageNew2 = () => {
 
   // Update Caption Based on Video Time
   useEffect(() => {
+    if (!hasStartedPlaying) return; // Don't start interval if video hasn't started
+
     const interval = setInterval(() => {
       if (player) {
+        const playerState = player.getPlayerState();
+        if (playerState !== 1) return; // Skip if not playing (1 is playing state)
+
         const currentTime = player.getCurrentTime();
-        const activeCaption = captions.find(
+        const activeCaptionIndex = captions.findIndex(
           (caption) =>
             currentTime >= caption.start && currentTime <= caption.end,
         );
-        setCurrentCaption(activeCaption?.text || "");
+        if (activeCaptionIndex !== -1) {
+          setCurrentCaption(captions[activeCaptionIndex].text);
+          setCurrentInteractiveText(interactiveCaptions[activeCaptionIndex]);
+        } else {
+          setCurrentCaption("");
+          setCurrentInteractiveText(null);
+        }
       }
     }, 250);
 
     return () => clearInterval(interval);
-  }, [captions, player]);
+  }, [captions, interactiveCaptions, player, hasStartedPlaying]);
 
   // Spacebar Play/Pause Event
   useEffect(() => {
@@ -325,6 +408,11 @@ const VideoPageNew2 = () => {
     };
   }, []);
 
+  // Add debug effect for currentInteractiveText
+  useEffect(() => {
+    console.log("currentInteractiveText changed:", currentInteractiveText);
+  }, [currentInteractiveText]);
+
   if (!videoId) {
     return <div>No video ID provided</div>;
   }
@@ -360,34 +448,22 @@ const VideoPageNew2 = () => {
           <p style={{ fontStyle: "italic", color: "gray" }}>
             Start the video to see captions.
           </p>
-        ) : currentCaption ? (
-          <p>{currentCaption}</p>
+        ) : currentInteractiveText ? (
+          <TranslatableText
+            interactiveText={currentInteractiveText}
+            translating={true}
+            translatedWords={translatedWords}
+            setTranslatedWords={setTranslatedWords}
+          />
         ) : null}
       </CaptionContainer>
 
-      <InfoContainer>
+      {/* <InfoContainer>
         <InfoItem clickable onClick={() => history.push("/")}>
           <img src="static/icons/go-back.png" alt="Go back icon" />
           <span>Return to Home</span>
         </InfoItem>
-        <InfoItem>
-          <img src="static/icons/youtube.png" alt="Uploader icon" />
-          <span>{videoData.uploader}</span>
-        </InfoItem>
-        <InfoItem>
-          <img
-            src={`static/icons/${videoData.cefr_level}-level-icon.png`}
-            alt="Difficulty icon"
-          />
-          <span>{videoData.cefr_level}</span>
-        </InfoItem>
-        <InfoItem>
-          <img src="static/icons/duration.png" alt="Duration icon" />
-          <span>{videoData.duration}</span>
-        </InfoItem>
-      </InfoContainer>
+      </InfoContainer> */}
     </MainContainer>
   );
 };
-
-export default VideoPageNew2;
